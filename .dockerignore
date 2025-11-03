@@ -1,0 +1,8 @@
+target/
+.git
+.gitignore
+.mvn
+vscode/
+.idea/
+README.md
+node_modules
