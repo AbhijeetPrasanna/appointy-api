@@ -1,16 +1,17 @@
-# Dockerfile for Appointy API (Java 17)
+# build stage
+FROM maven:3.9.4-eclipse-temurin-17 AS build
+WORKDIR /build
+COPY pom.xml mvnw ./
+COPY .mvn .mvn
+RUN ./mvnw -v
+COPY src src
+RUN ./mvnw -B clean package -DskipTests
+
+# runtime stage
 FROM eclipse-temurin:17-jdk-jammy
-
 WORKDIR /app
-
-# Copy the built JAR into the image
-ARG JAR_FILE=target/Appointment-0.0.1-SNAPSHOT.jar
-COPY ${JAR_FILE} app.jar
-
-# Optional: allow tuning
+ARG JAR_FILE=/build/target/Appointment-0.0.1-SNAPSHOT.jar
+COPY --from=build ${JAR_FILE} app.jar
 ENV JAVA_OPTS=""
-
-# Expose default port (Spring will use PORT env var)
 EXPOSE 8080
-
 ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar /app/app.jar"]
